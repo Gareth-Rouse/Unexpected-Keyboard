@@ -114,6 +114,37 @@ public class PersonalDictionaryTest
   }
 
   @Test
+  public void find_word_is_case_insensitive()
+  {
+    PersonalDictionary d = new PersonalDictionary(words("Nafisa", "Ashley"));
+    assertEquals("Nafisa", d.find_word("NAFISA"));
+    assertNull(d.find_word("Nafis"));
+  }
+
+  @Test
+  public void corrections_cost_transpositions_and_neighbours()
+  {
+    PersonalDictionary d = new PersonalDictionary(words("Nafisa", "Ashley"));
+    List<String> ws = new ArrayList<String>();
+    List<Integer> cs = new ArrayList<Integer>();
+    d.query_corrections("nafsia", null, 2, ws, cs);
+    assertEquals(Arrays.asList("Nafisa"), ws);
+    assertEquals(Arrays.asList(1), cs);
+    // 'a' and 's' are neighbours: substituting one for the other is cheaper.
+    byte[] prox = new byte[juloo.cdict.Cdict.PROXIMITY_SIZE];
+    prox['a' * 128 + 's'] = prox['s' * 128 + 'a'] = 1;
+    ws.clear(); cs.clear();
+    d.query_corrections("nafiaa", prox, 2, ws, cs);
+    assertEquals(Arrays.asList(1), cs);
+    ws.clear(); cs.clear();
+    d.query_corrections("nafiaa", null, 2, ws, cs);
+    assertEquals(Arrays.asList(2), cs);
+    ws.clear(); cs.clear();
+    d.query_corrections("zzzz", null, 2, ws, cs);
+    assertEquals(Arrays.asList(), ws);
+  }
+
+  @Test
   public void empty_dictionary()
   {
     PersonalDictionary d = new PersonalDictionary(null);

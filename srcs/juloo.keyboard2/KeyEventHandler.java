@@ -30,7 +30,7 @@ public final class KeyEventHandler
   /** Whether to force sending arrow keys to move the cursor when
       [setSelection] could be used instead. */
   boolean _move_cursor_force_fallback = false;
-  /** Whether the space bar automatically enters the best suggestion. */
+  /** Whether the space bar enters [Suggestions.autocorrect]. */
   boolean _space_bar_auto_complete = false;
   /** Remember the action that was handled. This is used by autocorrect. */
   LastAction _last_action = null;
@@ -545,13 +545,14 @@ public final class KeyEventHandler
       backspace. */
   int last_replacement_word_len = 0;
 
-  /** Implement autocorrect when enabled in the settings. */
+  /** Implement autocorrect when enabled in the settings. Only corrections,
+      never completions, are entered, see [Suggestions.autocorrect]. */
   void handle_space_bar()
   {
-    if (_space_bar_auto_complete && _suggestions.count > 0
+    if (_space_bar_auto_complete && _suggestions.autocorrect != null
         && !_typedword.is_selection_not_empty()
         && _typedword.cursor_relative() == 0)
-      suggestion_entered(_suggestions.suggestions[0] + " ");
+      suggestion_entered(_suggestions.autocorrect + " ");
     else
       send_text(" ");
   }

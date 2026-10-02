@@ -87,7 +87,14 @@ public class Keyboard2 extends InputMethodService
     // The active dictionary depends on the current layout.
     refresh_current_dictionary();
     refresh_candidates_view();
-    _keyboard_layout_view.setKeyboard(current_layout());
+    set_keyboard(current_layout());
+  }
+
+  /** Show [kw] and update the keyboard proximity used for corrections. */
+  void set_keyboard(KeyboardData kw)
+  {
+    _keyboard_layout_view.setKeyboard(kw);
+    _suggestions.set_layout(kw);
   }
 
   void incrTextLayout(int delta)
@@ -99,7 +106,7 @@ public class Keyboard2 extends InputMethodService
   void setSpecialLayout(KeyboardData l)
   {
     _currentSpecialLayout = l;
-    _keyboard_layout_view.setKeyboard(l);
+    set_keyboard(l);
   }
 
   KeyboardData loadLayout(int layout_id)
@@ -220,7 +227,7 @@ public class Keyboard2 extends InputMethodService
     _candidates_view.setVisibility(should_show ? View.VISIBLE : View.GONE);
   }
 
-  /** Might re-create the keyboard view. [_keyboard_layout_view.setKeyboard()] and
+  /** Might re-create the keyboard view. [set_keyboard()] and
       [setInputView()] must be called soon after. */
   private void refresh_config()
   {
@@ -265,7 +272,7 @@ public class Keyboard2 extends InputMethodService
     _config.editor_config.refresh(info, getResources());
     refresh_config();
     _currentSpecialLayout = refresh_special_layout();
-    _keyboard_layout_view.setKeyboard(current_layout());
+    set_keyboard(current_layout());
     _keyeventhandler.started(_config);
     setInputView(_keyboard_container_view);
     Logs.debug_startup_input_view(info, _config);
@@ -352,7 +359,7 @@ public class Keyboard2 extends InputMethodService
     refreshSubtypeImm();
     refresh_current_dictionary();
     refresh_candidates_view();
-    _keyboard_layout_view.setKeyboard(current_layout());
+    set_keyboard(current_layout());
   }
 
   @Override
@@ -375,7 +382,7 @@ public class Keyboard2 extends InputMethodService
   public void onSharedPreferenceChanged(SharedPreferences _prefs, String _key)
   {
     refresh_config();
-    _keyboard_layout_view.setKeyboard(current_layout());
+    set_keyboard(current_layout());
   }
 
   @Override
@@ -433,7 +440,7 @@ public class Keyboard2 extends InputMethodService
 
         case SWITCH_TEXT:
           _currentSpecialLayout = null;
-          _keyboard_layout_view.setKeyboard(current_layout());
+          set_keyboard(current_layout());
           break;
 
         case SWITCH_NUMERIC:

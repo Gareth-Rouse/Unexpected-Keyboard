@@ -2,6 +2,7 @@ package juloo.keyboard2;
 
 import java.util.ArrayList;
 import java.util.List;
+import juloo.keyboard2.suggestions.EditDistance;
 
 /** A user-maintained list of words suggested when their prefix is typed. An
     entry can have a shortcut attached: typing the shortcut exactly suggests
@@ -76,6 +77,39 @@ public final class PersonalDictionary
         return out;
     }
     return out;
+  }
+
+  /** The stored word equal to [typed] (case-insensitive, with the same
+      substitutions as the compiled dictionaries), or null. */
+  public String find_word(String typed)
+  {
+    String t = normalized(typed);
+    for (Entry e : _entries)
+      if (e.norm_word.equals(t))
+        return e.word;
+    return null;
+  }
+
+  /** Append to [words] the stored words other than [typed] whose correction
+      cost from [typed] is at most [max_cost], and their costs to [costs].
+      Costs are those of [EditDistance.cost]. Case-insensitive duplicates are
+      returned once, in insertion order. */
+  public void query_corrections(String typed, byte[] proximity, int max_cost,
+      List<String> words, List<Integer> costs)
+  {
+    String t = normalized(typed);
+    for (Entry e : _entries)
+    {
+      if (e.norm_word.isEmpty() || e.norm_word.equals(t))
+        continue;
+      int c = EditDistance.cost(t, e.norm_word, proximity, max_cost);
+      if (c > max_cost)
+        continue;
+      int n = words.size();
+      add_unique(words, e.word);
+      if (words.size() > n)
+        costs.add(c);
+    }
   }
 
   /** [w] lower-cased and transformed with the same character substitutions
