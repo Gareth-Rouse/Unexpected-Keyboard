@@ -38,6 +38,25 @@ Nix users can call gradle directly: `gradle assembleDebug`.
 
 If the build succeeds, the debug apk is located in `build/outputs/apk/debug/app-debug.apk`.
 
+## Testing correction boundaries
+
+With the build dependencies above and Python 3 available, run the Java distance and personal dictionary regressions:
+
+```sh
+./gradlew testDebugUnitTest --tests juloo.keyboard2.EditDistanceTest --tests juloo.keyboard2.PersonalDictionaryTest
+```
+
+With a C compiler supporting GNU C23, run the native dictionary regressions from the repository root:
+
+```sh
+cc -std=gnu2x -Wall -Wextra -I vendor/cdict/libcdict vendor/cdict/tests/correct.c vendor/cdict/libcdict/libcdict.c -o /tmp/cdict-correct-regression
+/tmp/cdict-correct-regression
+```
+
+These cover adjacent swaps such as `ot` → `to` at the cost limit, including swaps combined with ordinary or keyboard-neighbour substitutions.
+Native cases exercise both compressed prefix and branch nodes and reject corrections over the limit.
+
+
 ## Debugging on your phone
 
 First [Enable adb debugging on your device](https://developer.android.com/studio/command-line/adb#Enabling).

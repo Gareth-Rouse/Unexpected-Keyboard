@@ -22,6 +22,7 @@ public final class EditDistance
     int[] row = new int[n + 1];
     for (int j = 0; j <= n; j++)
       prev[j] = j * Cdict.COST_EDIT;
+    int prev_min = 0;
     for (int d = 1; d <= m; d++)
     {
       char c = word.charAt(d - 1);
@@ -38,8 +39,10 @@ public final class EditDistance
         row[j] = v;
         row_min = Math.min(row_min, v);
       }
-      if (row_min > max_cost)
+      // The next row may transpose from [prev], bypassing this row.
+      if (row_min > max_cost && prev_min + Cdict.COST_TRANSPOSE > max_cost)
         return max_cost + 1;
+      prev_min = row_min;
       int[] tmp = prev2; prev2 = prev; prev = row; row = tmp;
     }
     return (prev[n] <= max_cost) ? prev[n] : max_cost + 1;
